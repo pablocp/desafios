@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package idwall.desafio.crawler.reddit;
+
+option java_outer_classname = "RedditCrawlerProtos";
+option java_generic_services = true;
+
+message RedditThreadInfo {
+    string author = 1;
+    int32 commentsCount = 2;
+    string commentsLink = 3;
+    string link = 4;
+    int32 score = 5;
+    string subreddit = 6;
+    string title = 7;
+}
+
+message GetTrendingRequest {
+    string subreddit = 1;
+    int32 minScore = 2;
+}
+
+message GetTrendingResponse {
+    repeated RedditThreadInfo redditThreadInfoList = 1;
+}
+
+service RedditCrawlerService {
+    rpc GetTrending (GetTrendingRequest) returns (GetTrendingResponse);
+}

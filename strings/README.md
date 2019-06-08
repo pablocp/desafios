@@ -1,35 +1,53 @@
-# Desafio 1: Strings
+Desafio 1: Strings
+==================
+Neste desafio foi pedido um programa que limitasse a quantidade de caracteres por linha em um texto dado como entrada, inserindo quebras de linha quando necessário, porém respeitando os limites das palavras. Como continuação do problema, também foi pedido que houvesse a possibilidade de justificar o texto e de parametrizar a quantidade máxima de caracteres por linha.
 
-Após ler o coding style do kernel Linux, você descobre a mágica que é
-ter linhas de código com no máximo 80 caracteres cada uma.
+Solução
+-------
+A primeira ideia para resolver o problema foi primeiramente dividir o texto em várias `Strings` de acordo com as quebras de linha originais. Desta forma seria fácil devolvê-las ao texto após o processamento.
 
-Assim, você decide que de hoje em diante seus e-mails enviados também
-seguirão um padrão parecido e resolve desenvolver um plugin para te ajudar
-com isso. Contudo, seu plugin aceitará no máximo 40 caracteres por linha.
+Em seguida, para cada linha do texto original, iterar sobre suas palavras até que o limite de caracteres fosse atingido, inserindo, então, uma quebra de linha e continuando a iteração na linha seguinte. Esta solução se adapta facilmente ao requisito de possibilitar a parametrização do tamanho das linhas, visto que não depende de um número fixo de caracteres.
 
-Implemente uma função que receba:
-1. um texto qualquer
-2. um limite de comprimento
+Pensei, então em duas abordagens para a implementação desta solução: da forma tradicional, utilizando laços como `for` e `while` para percorrer a entrada, ou transformando o texto em uma _stream_ de dados e utilizando as operações sobre `Stream`disponíveis em Java.
 
-e seja capaz de gerar os outputs dos desafios abaixo.
+Uma pesquisa rápida de _benchmarks_ mostrou que a primeira alternativa apresenta melhores resultados em termos de desempenho, apresentando desempenho significativamente inferior apenas para grandes volumes de dados quando comparada a _streams_ de processamento em paralelo, porém ainda com a ressalva de que a tarefa em questão deve ser intrinsicamente paralelizável para que isto ocorra.
 
-## Exemplo input
+Sendo assim, a opção que se mostrou mais adequada para a resolução deste problema se faz utilizando os blocos de repetição da linguagem. Entretanto esta não foi a solução implementada por mim, e explico o porquê:
 
-`In the beginning God created the heavens and the earth. Now the earth was formless and empty, darkness was over the surface of the deep, and the Spirit of God was hovering over the waters.`
+Se este problema tivesse surgido em uma situação cotidiana, certamente adotaria a implementação mais simples e mais eficiente. Porém este problema surgiu no contexto de um processo seletivo de uma vaga de desenvolvimento Java. Sendo assim, entendi que teria pouco a mostrar com a solução mais básica, tendo preferido utilizar _streams_ para demonstrar familiaridade com construções mais novas da linguagem, além de facilidade em raciocinar sobre este modelo de processamento que se mostra bastante relevante no cenário atual, em que a demanda por processamento de grandes volumes de dados se faz cada vez mais presente.
 
-`And God said, "Let there be light," and there was light. God saw that the light was good, and he separated the light from the darkness. God called the light "day," and the darkness he called "night." And there was evening, and there was morning - the first day.`
+Por fim, para resolver o requisito de justificar o texto, foi adotada uma política de 3 passagens sobre o texto: a primeira visava apenas dividir as palavras em linhas de acordo com o limite de caracteres estabelecido. A segunda para calcular qual das linhas geradas era a maior (isto poderia ter sido feito na primeira passagem, mas só pensei nisso depois de ter terminado a implementação e achei que o ganho de performance não valeria o esforço de mudar o código nesse caso específico). A terceira passagem foi para ajustar o espaço entre as palavras de cada linha de forma que todas as linhas de forma que elas ficassem com o tamanho da maior linha. Apesar de ser possível fazer tudo isso em uma passagem só, utilizando o limite de caracteres como objetivo do tamanho da linha, isto produziria um resultado mais feio em alguns casos. Por outro lado, esta solução com uma única passagem poderia ser facilmente aplicada a grandes quantidades de texto, visto que não exige que os resultados intermediários fiquem armazenados em memória.
 
-O texto deve ser parametrizável e se quiser, pode utilizar um texto de input de sua preferência.
+Compilação e execução
+---------------------
+Para compilar este projeto será necessária a instalação do [Bazel](https://bazel.build).
 
-### Parte 1 (Básico) - limite 40 caracteres
-Você deve seguir o exemplo de output [deste arquivo](https://github.com/idwall/desafios/blob/master/strings/output_parte1.txt), onde basta o texto possuir, no máximo, 40 caracteres por linha. As palavras não podem ser quebradas no meio.
+A partir desta pasta, use o comando:
 
-### Parte 2 (Intermediário) - limite 40 caracteres
-O exemplo de output está [neste arquivo](https://github.com/idwall/desafios/blob/master/strings/output-parte2.txt), onde além de o arquivo possuir, no máximo, 40 caracteres por linha, o texto deve estar **justificado**.
+```
+bazel build //src/main/java:Main
+```
 
-### Dicas
-- Existe um template para projetos em Java ;)
+Após a compilação, execute o programa usando:
 
-### Extras
+```
+./bazel-bin/src/main/java/Main
+```
 
-- Parametrização da quantidade de caracteres por linha.
+Os testes unitários podem ser compilados e executados através dos comandos:
+
+```
+bazel build //src/test/java:LimitedTextLineTest
+```
+```
+./bazel-bin/src/test/java/LimitedTextLineTest
+```
+
+e
+
+```
+bazel build //src/test/java:LimitedTextLineTest
+```
+```
+./bazel-bin/src/test/java/LimitedTextLineTest
+```

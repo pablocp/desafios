@@ -1,0 +1,115 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: rabbitmq
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      deploy: rabbitmq
+
+  template:
+    metadata:
+      labels:
+        deploy: rabbitmq
+    spec:
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:management
+
+---
+
+kind:  Service
+apiVersion: v1
+metadata:
+  name:  rabbitmq-service
+spec:
+  type: LoadBalancer
+  ports:
+    - name: port15671
+      port: 15671
+      targetPort: 15671
+    - name: port15672
+      port: 15672
+      targetPort: 15672
+    - name: port25672
+      port: 25672
+      targetPort: 25672
+    - name: port4369
+      port: 4369
+      targetPort: 4369
+    - name: port5671
+      port: 5671
+      targetPort: 5671
+    - name: port5672
+      port: 5672
+      targetPort: 5672
+  selector:
+    deploy: rabbitmq
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: reddit-crawler
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      deploy: reddit-crawler
+
+  template:
+    metadata:
+      labels:
+        deploy: reddit-crawler
+    spec:
+      containers:
+        - name: reddit-crawler
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq-service.default.svc.cluster.local
+          image: nezkall/reddit-crawler:latest
+
+---
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: telegram-bot
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      deploy: telegram-bot
+
+  template:
+    metadata:
+      labels:
+        deploy: telegram-bot
+    spec:
+      containers:
+        - name: telegram-bot
+          image: nezkall/telegram-bot:latest
+          env:
+            - name: RABBITMQ_HOST
+              value: rabbitmq-service.default.svc.cluster.local
+          ports:
+            - containerPort: 8080
+
+---
+
+kind:  Service
+apiVersion: v1
+metadata:
+  name:  telegram-bot
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 443
+      targetPort:  8080
+  selector:
+    deploy: telegram-bot
