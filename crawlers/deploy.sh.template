@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DOCKER_USER=::DOCKER_USER::
+
+echo "Pushing docker images"
+docker push $DOCKER_USER/reddit-crawler:latest
+docker push $DOCKER_USER/telegram-bot:latest
+
+kubectl create -f deployment.yaml

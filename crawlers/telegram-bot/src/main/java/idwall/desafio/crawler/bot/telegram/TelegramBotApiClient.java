@@ -11,6 +11,11 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class TelegramBotApiClient {
+    public TelegramBotApiClient() {
+        String botToken = System.getenv(BOT_TOKEN_ENV_VAR);
+        this.botChatUrl = String.format(BOT_CHAT_URL_TEMPLATE, botToken);
+    }
+
     public boolean sendMessage(String message, int chatId) {
         TelegramBotMessage botMessage = new TelegramBotMessage();
         botMessage.setChatId(chatId);
@@ -26,7 +31,7 @@ public class TelegramBotApiClient {
     }
 
     private boolean sendBotRequest(Object payload) throws Exception {
-        URL obj = new URL(BOT_CHAT_URL);
+        URL obj = new URL(this.botChatUrl);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
 		// For POST only - START
@@ -52,7 +57,8 @@ public class TelegramBotApiClient {
         }
     }
 
-    private static final String BOT_TOKEN = "<INSERT_YOUR_BOT_TOKEN_HERE>";
-    private static final String BOT_CHAT_URL =
-        "https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage";
+    private String botChatUrl;
+    private static final String BOT_TOKEN_ENV_VAR = "TELEGRAM_BOT_TOKEN";
+    private static final String BOT_CHAT_URL_TEMPLATE =
+        "https://api.telegram.org/bot%s/sendMessage";
 }

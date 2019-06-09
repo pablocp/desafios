@@ -71,7 +71,7 @@ spec:
           env:
             - name: RABBITMQ_HOST
               value: rabbitmq-service.default.svc.cluster.local
-          image: nezkall/reddit-crawler:latest
+          image: ::DOCKER_USER::/reddit-crawler:latest
 
 ---
 
@@ -93,10 +93,12 @@ spec:
     spec:
       containers:
         - name: telegram-bot
-          image: nezkall/telegram-bot:latest
+          image: ::DOCKER_USER::/telegram-bot:latest
           env:
             - name: RABBITMQ_HOST
               value: rabbitmq-service.default.svc.cluster.local
+            - name: TELEGRAM_BOT_TOKEN
+              value: ::TELEGRAM_BOT_TOKEN::
           ports:
             - containerPort: 8080
 

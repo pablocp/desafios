@@ -1,17 +1,17 @@
 #!/bin/bash
 
+DOCKER_USER=::DOCKER_USER::
+
 echo "Compiling base files."
 mvn -f reddit-crawler-proto/pom.xml package install
 mvn -f rabbitmq-rpc-transport/pom.xml package install
 
 echo "Compiling reddit crawler."
 mvn -f reddit-crawler-server/pom.xml package install && \
-docker build . -f reddit-crawler-server-easy.dockerfile -t nezkall/reddit-crawler-server:latest
+docker build . -f reddit-crawler-server.dockerfile -t $DOCKER_USER/reddit-crawler-server:latest
 
 echo "Compiling telegram bot."
 mvn -f telegram-bot/pom.xml package install && \
-docker build . -f telegram-bot-easy.dockerfile -t nezkall/telegram-bot:latest
-
-#docker build . -f telegram-bot.dockerfile -t telegram-bot
+docker build . -f telegram-bot.dockerfile -t $DOCKER_USER/telegram-bot:latest
 
 echo "Done."

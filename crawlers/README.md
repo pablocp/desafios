@@ -38,3 +38,32 @@ Destes planos, a execução até o momento da entrega ficou neste ponto:
   [7] Docker e kubernetes: implementado.
 
 Dito isso, é justo salientar que, dado o tamanho do projeto, a quantidade de ferramentas novas no repertório e o curto tempo para isto, a versão submetida para avaliação não contém testes e a qualidade do código ficou questionável em algumas classes. Também há algumas exceções que não foram devidamente tratadas. No fim, o projeto ficou funcional, porém instável. São falhas no projeto que estou ciente da existência e que não deixaria passar em uma rotina de trabalho.
+
+Compilação e execução
+----------------------
+### CLI
+Para executar a interface por linha de comando é necessário ter instalado o [Maven](https://maven.apache.org/) e o [Java Development Kit (JDK)](https://www.oracle.com/technetwork/java/javase/downloads/jdk12-downloads-5295953.html) versão 12 ou maior.
+
+A partir desta pasta, execute o comando `./build-cli.sh` para compilar e em seguida executar o jar gerado passando como argumento uma lista de nomes de subreddits separados por ponto-e-vírgula. Ex:
+```
+java -jar reddit-crawler-cli/target/reddit-crawler-cli-0.0.1-SNAPSHOT-jar-with-dependencies.jar 'todayilearned;worldnews'
+````
+
+### Bot do Telegram
+Para instanciar os serviços necessários para o bot é necessário ter instalado o [Maven](https://maven.apache.org/), o [Java Development Kit (JDK)](https://www.oracle.com/technetwork/java/javase/downloads/jdk12-downloads-5295953.html), o [Docker](https://www.docker.com/) e o [Kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/). Também é necessário ter uma conta no [Docker Hub](https://hub.docker.com/) para hospedar as imagens docker geradas no processo.
+
+Além disso é necessário criar um bot no Telegram. Para isso, abra o aplicativo e inicie uma conversa com o BotFather. Use o comando `/newbot` e siga as instruções fornecidas. Ao fim do processo o BotFather enviará uma mensagem confirmando a criação do bot contendo um **token** de identificação do bot. Este **token** não deve ser compartilhado publicamente.
+
+Com o **token** em mãos, execute, a partir desta pasta, o comando `./configure.sh`. Será solicitado o **token** gerado pelo BotFather. Também será pedida a autenticação da ferramenta de linha de comando do Docker usando a conta do Docker Hub, caso isso não tenha sido feito anteriormente.
+
+O script de configuração deve gerar 2 novos scripts, que devem ser executados na sequência: `./build.sh` e `./deploy.sh`. O primeiro irá compilar o projeto e criar as imagens do docker necessárias. O segundo irá fazer o _upload_ destas para o Docker Hub e subir os serviços criados no _cluster_ do Kubernetes para o qual o kubectl estiver configurado.
+
+Um dos serviços criados no cluster será o `telegram-bot` aceitando conexões na porta 443. É necessário fornecer um certificado de segurança para este serviço, pois o bot do Telegram realiza apenas conexões HTTPS. A execução desta etapa varia dependendo de onde o _cluster_ encontra-se hospedado.
+
+Por fim, basta configurar este servidor para funcionar como um _webhook_ para o bot do telegram. Isto pode ser feito acessando a URL
+```
+https://api.telegram.org/bot<TOKEN_DO_BOT>/setWebhook?url=<URL_DO_SERVIDOR>/telegram/
+```
+Um JSON de confirmação deve aparecer no browser.
+
+Para executar, basta procurar pelo bot no Telegram e enviar uma mensagem /NadaParaFazer seguida de uma lista de nomes de subreddits separados por ponto-e-vírgula. Ex: `/NadaParaFazer todayilearned;worldnews`.
