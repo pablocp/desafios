@@ -28,7 +28,7 @@ public class TelegramBotController {
             String commandParams = message.substring(14).trim();
 
             if (!commandParams.isEmpty()) {
-                String[] subreddits = update.getMessage().getText().split(";");
+                String[] subreddits = commandParams.split(";");
 
                 for (String subreddit: subreddits) {
                     sendTrendingThreads(subreddit, update.getMessage().getChat().getId());
